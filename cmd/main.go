@@ -12,20 +12,36 @@ import (
 	"time"
 )
 
+var (
+	aiMetricsLabel = os.Getenv("AI_METRICS_LABEL")
+	nodeLabel      = os.Getenv("NODE_LABEL")
+	lokiURL        = os.Getenv("LOKI_URL")
+)
+
+func initCheck() {
+	if aiMetricsLabel == "" {
+		log.Fatalln("[WARNING] env var AI_METRICS_LABEL  is empty. ")
+	}
+
+	if nodeLabel == "" {
+		log.Fatalln("env var NODE_LABEL is empty")
+	}
+
+	if lokiURL == "" {
+		log.Fatalln("env var LOKI_URL is empty")
+	}
+}
+
 var mfuGaugeVec *prometheus.GaugeVec
 
 func init() {
-	aiMetrics := os.Getenv("AI_METRICS")
-	if aiMetrics == "" {
-		fmt.Println("[WARNING] AI_METRICS env is empty. set default value 'mfu'")
-		aiMetrics = "mfu"
-	}
+	initCheck()
 
 	//os.Environ()
 	mfuGaugeVec = collectors.NewMFUGaugeVec()
 	http.Handle("/metrics", promhttp.HandlerFor(pkgPrometheus.NewMetricsRegistry(map[string]string{
 		"service":    "parse-to-metrics",
-		"ai_metrics": aiMetrics,
+		"ai_metrics": aiMetricsLabel,
 	}, mfuGaugeVec), promhttp.HandlerOpts{}))
 }
 
@@ -44,22 +60,12 @@ func main() {
 }
 
 func setGaugeVecValue() error {
-	lokiURL := os.Getenv("LOKI_URL")
-	if lokiURL == "" {
-		return fmt.Errorf("loki url env is empty")
-	}
 
 	mfuValue, err := collectors.QueryMFU(lokiURL)
 	if err != nil {
 		return err
 	}
 
-	// TODO: change
-	nodeValue, ok := mfuValue.Labels["ai"]
-	if !ok {
-		nodeValue = "localhost"
-	}
-
-	mfuGaugeVec.WithLabelValues(nodeValue).Set(mfuValue.Value)
+	mfuGaugeVec.WithLabelValues(nodeLabel).Set(mfuValue.Value)
 	return nil
 }

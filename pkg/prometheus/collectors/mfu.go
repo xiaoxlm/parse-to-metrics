@@ -14,13 +14,6 @@ func NewMFUGaugeVec() *prometheus.GaugeVec {
 	}, []string{"node"})
 }
 
-func NewMFUCounterVec() *prometheus.CounterVec {
-	return prometheus.NewCounterVec(prometheus.CounterOpts{
-		Name: "model_flops_util",        // 指标名称
-		Help: "Model FLOPS Utilization", // 帮助信息
-	}, []string{"node"})
-}
-
 type MfuRESP struct {
 	Value  float64
 	Labels map[string]string
