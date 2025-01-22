@@ -70,8 +70,8 @@ type LokiData struct {
 }
 
 type LokiResult struct {
-	//stream
-	Values LokiValues `json:"values"`
+	Stream map[string]string `json:"stream"`
+	Values LokiValues        `json:"values"`
 }
 
 type LokiValues []any
