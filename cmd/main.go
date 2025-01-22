@@ -54,6 +54,7 @@ func setGaugeVecValue() error {
 		return err
 	}
 
+	// TODO: change
 	nodeValue, ok := mfuValue.Labels["ai"]
 	if !ok {
 		nodeValue = "localhost"

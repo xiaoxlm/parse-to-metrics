@@ -12,7 +12,8 @@ type MFUResult struct {
 	Find  bool
 }
 
-func ParseMFULog(text, key string) (*MFUResult, error) {
+func ParseMFULog(text string) (*MFUResult, error) {
+	key := "mfu"
 	// 正则表达式，匹配类似 "key: value" 的格式
 	regex := fmt.Sprintf(`(?i)%s:\s*([0-9.]+)`, regexp.QuoteMeta(key))
 	re := regexp.MustCompile(regex)
