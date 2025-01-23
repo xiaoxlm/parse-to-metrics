@@ -4,44 +4,24 @@ import (
 	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/xiaoxlm/parse-to-metrics/global"
 	pkgPrometheus "github.com/xiaoxlm/parse-to-metrics/pkg/prometheus"
 	"github.com/xiaoxlm/parse-to-metrics/pkg/prometheus/collectors"
 	"log"
 	"net/http"
-	"os"
 	"time"
 )
-
-var (
-	aiMetricsLabel = os.Getenv("AI_METRICS_LABEL")
-	nodeLabel      = os.Getenv("NODE_LABEL")
-	lokiURL        = os.Getenv("LOKI_URL")
-)
-
-func initCheck() {
-	if aiMetricsLabel == "" {
-		log.Fatalln("[WARNING] env var AI_METRICS_LABEL  is empty. ")
-	}
-
-	if nodeLabel == "" {
-		log.Fatalln("env var NODE_LABEL is empty")
-	}
-
-	if lokiURL == "" {
-		log.Fatalln("env var LOKI_URL is empty")
-	}
-}
 
 var mfuGaugeVec *prometheus.GaugeVec
 
 func init() {
-	initCheck()
+	global.InitCheck()
 
 	//os.Environ()
 	mfuGaugeVec = collectors.NewMFUGaugeVec()
 	http.Handle("/metrics", promhttp.HandlerFor(pkgPrometheus.NewMetricsRegistry(map[string]string{
 		"service":    "parse-to-metrics",
-		"ai_metrics": aiMetricsLabel,
+		"ai_metrics": global.AiMetricsLabel,
 	}, mfuGaugeVec), promhttp.HandlerOpts{}))
 }
 
@@ -61,11 +41,11 @@ func main() {
 
 func setGaugeVecValue() error {
 
-	mfuValue, err := collectors.QueryMFU(lokiURL)
+	mfuValue, err := collectors.QueryMFU(global.LokiURL)
 	if err != nil {
 		return err
 	}
 
-	mfuGaugeVec.WithLabelValues(nodeLabel).Set(mfuValue.Value)
+	mfuGaugeVec.WithLabelValues(global.NodeLabel).Set(mfuValue.Value)
 	return nil
 }
