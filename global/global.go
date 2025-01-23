@@ -22,7 +22,7 @@ LOKI_URL=%s
 
 `, AiMetricsLabel, NodeLabel, LokiURL)
 	if AiMetricsLabel == "" {
-		log.Fatalln("[WARNING] env var AI_METRICS_LABEL  is empty. ")
+		log.Fatalln("[WARNING] env var AI_METRICS_LABEL is empty. ")
 	}
 
 	if NodeLabel == "" {
