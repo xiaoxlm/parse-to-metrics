@@ -23,7 +23,7 @@ func QueryMFU(lokiURL string) (mfuValue *MfuRESP, err error) {
 	query := `{ai="mfu"} |= "mfu:" `
 
 	now := time.Now()
-	var start int64 = now.Add(-10 * time.Second).UnixNano()
+	var start int64 = now.Add(-5 * time.Second).UnixNano()
 	var end int64 = now.UnixNano()
 
 	resp, err := loki.QueryLoki(lokiURL, query, start, end)
