@@ -1,6 +1,7 @@
 package collectors
 
 import (
+	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/xiaoxlm/parse-to-metrics/pkg/loki"
 	"github.com/xiaoxlm/parse-to-metrics/pkg/loki/parser"
@@ -23,7 +24,7 @@ func QueryMFU(lokiURL string) (mfuValue *MfuRESP, err error) {
 	query := `{ai="mfu"} |= "mfu:" `
 
 	now := time.Now()
-	var start int64 = now.Add(-5 * time.Second).UnixNano()
+	var start int64 = now.Add(-30 * time.Second).UnixNano()
 	var end int64 = now.UnixNano()
 
 	resp, err := loki.QueryLoki(lokiURL, query, start, end)
@@ -37,6 +38,14 @@ func QueryMFU(lokiURL string) (mfuValue *MfuRESP, err error) {
 	)
 	for _, res := range resp.Data.Result {
 		Labels = res.Stream
+
+		if len(res.Values) < 1 {
+			continue
+		}
+		if len(res.Values) < 2 {
+			fmt.Printf("[WARNING] only get one value, content is %v \n", res.Values[0])
+			continue
+		}
 
 		tmpValues := res.Values[1]
 		values := tmpValues.([]interface{})[1].(string)

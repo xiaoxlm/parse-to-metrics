@@ -27,10 +27,12 @@ func init() {
 
 func main() {
 	go func() {
-		for range time.Tick(1 * time.Second) {
+		for {
 			if err := setGaugeVecValue(); err != nil {
 				fmt.Printf("[ERROR] setGaugeVecValue error. err:%v \n", err)
 			}
+
+			time.Sleep(30 * time.Second)
 		}
 	}()
 	fmt.Println("Starting server at :9133")
