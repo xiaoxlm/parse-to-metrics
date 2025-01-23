@@ -2,23 +2,24 @@ package main
 
 import (
 	"fmt"
-	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/sirupsen/logrus"
 	"github.com/xiaoxlm/parse-to-metrics/global"
+	"github.com/xiaoxlm/parse-to-metrics/pkg/collectors"
 	pkgPrometheus "github.com/xiaoxlm/parse-to-metrics/pkg/prometheus"
-	"github.com/xiaoxlm/parse-to-metrics/pkg/prometheus/collectors"
 	"log"
 	"net/http"
 	"time"
 )
 
-var mfuGaugeVec *prometheus.GaugeVec
+var mfuCollector *collectors.MFU
 
 func init() {
 	global.InitCheck()
+	mfuCollector = collectors.NewMFU()
 
 	//os.Environ()
-	mfuGaugeVec = collectors.NewMFUGaugeVec()
+	mfuGaugeVec := mfuCollector.GetGaugeVec()
 	http.Handle("/metrics", promhttp.HandlerFor(pkgPrometheus.NewMetricsRegistry(map[string]string{
 		"service":    "parse-to-metrics",
 		"ai_metrics": global.AiMetricsLabel,
@@ -28,26 +29,15 @@ func init() {
 func main() {
 	go func() {
 		for {
-			if err := setGaugeVecValue(); err != nil {
-				fmt.Printf("[ERROR] setGaugeVecValue error. err:%v \n", err)
+			if err := mfuCollector.SetGaugeVecValue(); err != nil {
+				logrus.Errorf("setGaugeVecValue error. err:%v ", err)
 			}
-
-			time.Sleep(30 * time.Second)
+			time.Sleep(5 * time.Second)
 		}
 	}()
+
 	fmt.Println("Starting server at :9133")
 	if err := http.ListenAndServe(":9133", nil); err != nil {
 		log.Fatalln(err)
 	}
-}
-
-func setGaugeVecValue() error {
-
-	mfuValue, err := collectors.QueryMFU(global.LokiURL)
-	if err != nil {
-		return err
-	}
-
-	mfuGaugeVec.WithLabelValues(global.NodeLabel).Set(mfuValue.Value)
-	return nil
 }

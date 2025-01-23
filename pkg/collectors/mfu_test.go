@@ -6,8 +6,8 @@ import (
 )
 
 func TestQueryMFU(t *testing.T) {
-	lokiURL := "http://127.0.0.1:3100"
-	gotMfuValue, err := QueryMFU(lokiURL)
+	lokiURL := "http://10.129.60.70:3100"
+	gotMfuValue, err := NewMFU().queryLoki(lokiURL)
 	if err != nil {
 		t.Fatal(err)
 	}
