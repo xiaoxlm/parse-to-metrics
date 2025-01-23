@@ -22,8 +22,9 @@ type MfuRESP struct {
 func QueryMFU(lokiURL string) (mfuValue *MfuRESP, err error) {
 	query := `{ai="mfu"} |= "mfu:" `
 
-	var start int64 = time.Now().Add(-5 * time.Second).UnixNano()
-	var end int64 = 0
+	now := time.Now()
+	var start int64 = now.Add(-10 * time.Second).UnixNano()
+	var end int64 = now.UnixNano()
 
 	resp, err := loki.QueryLoki(lokiURL, query, start, end)
 	if err != nil {
