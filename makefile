@@ -8,6 +8,6 @@ build-amd-linux:
 	$(GOBUILD) -o bin/parse-to-metrics-exporter-amd ./cmd/main.go
 
 build-image:
-	docker build --no-cache -f Dockerfile -t parse-to-metrics-exporter:v1.0.0 .
+	docker build --no-cache -f Dockerfile -t mfu-exporter:v1.0.0 .
 
 

@@ -11,9 +11,9 @@ make build-amd-linux
 # docker 运行
 ```shell
 docker run -d -p 9133:9133 \
- --name  parse-to-metrics-exporter \
+ --name  mfu-exporter \
  -e AI_METRICS_LABEL=mfu \
  -e NODE_LABEL="your node unique flag" \
  -e LOKI_URL="your loki url" \
-parse-to-metrics-exporter:v1.0.0
+mfu-exporter:v1.0.0
 ```
